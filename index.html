@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CChat-Realtime Node Socket.io Chat App</title>
+   <!-- linking to the socket server -->
+    <script src="/socket.io/socket.io.js" type="text/javascript"></script>
+
+    <style>
+        .logo {
+            display: block;
+            margin: auto;
+            width: 50px;
+            height: 50px;
+        }
+
+        body {
+            background-image: linear-gradient(rgb(255, 255, 255), green);
+            height: 100vh;
+        }
+
+        .container {
+            max-width: 955px;
+            margin: auto;
+            height: 60vh;
+            border-radius: 21px;
+            border: 2px ridge brown;
+            content: "";
+            background-color: darkgoldenrod;
+            background: url(images/wpbg.jpg) no-repeat;
+            background-size: 955px;
+            overflow-y: scroll;
+            margin-bottom: 23px;
+
+        }
+
+        .message {
+            background-color: gray;
+            width: 24%;
+            padding: 10px;
+            margin: 17px 12px;
+            border: 2 px ridge brown;
+            border-radius: 4px;
+
+        }
+
+        .left {
+            float: left;
+            clear: both;
+        }
+
+        .right {
+            float: right;
+            clear: both;
+        }
+
+        .send {
+            margin-top: 5vh;
+        }
+
+        #send-container {
+            display: block;
+            margin: auto;
+            text-align: center;
+            width: 100%;
+        }
+
+        #messageInp {
+            width: 85%;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            border: 2px solid black;
+            border-radius: 6px;
+            height: 32px;
+        }
+
+        .btn:hover {
+            box-shadow: 24px;
+            text-shadow: 5px;
+            background-color: rgb(52, 15, 15);
+        }
+
+        .btn {
+            cursor: pointer;
+            border: 2px solid black;
+            border-radius: 6px;
+            height: 32px;
+            width: 59px;
+            color: azure;
+            background-color: gray;
+
+        }
+
+        h1 {
+            margin-top: 12px;
+            font-size: medium;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            text-align: center;
+        }
+        #fot{
+        background-color: rgb(43, 15, 15);
+        color:whitesmoke;
+        border-radius: 9px;
+        text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    
+    <nav>
+
+        <img class="logo" src="/images/logo.png" alt="wp logo">
+        <h1>CChat</h1>
+    </nav>
+    <div class="container">
+         <!-- Space for displaying messages -->
+
+        <!-- <div class="message left">Harry:How are you?</div>
+        <div class="message right">Rohan:I am fine bhai.</div> -->
+
+    </div>
+
+    <div class="send">
+        <form action="#" id="send-container">
+            <input type="text" name="messageInp" id="messageInp">
+            <button type="submit" class="btn">Send</button>
+        </form>
+    </div>
+    <footer id="fot">
+        <p>&copy Subhajit Bera BCE JU CE Deptt.</p>
+
+    </footer>
+
+</body>
+<script>
+    // client side js
+    var socket = io();
+    //getting the elements from html
+    const form = document.getElementById('send-container');
+    const messageInput = document.getElementById('messageInp');
+    const messageContainer = document.querySelector(".container");
+
+   // getting the audio from images folder served as static to the server
+    var audio = new Audio('/images/ting.mp3');
+    //listening to the form submission
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const message = messageInput.value;
+        //Displaying the user's own message
+        append(`You:${message}`, 'right');
+        //Sending the message to index.js socket server
+        socket.emit('send', message);
+        //making the input text null after clicking submit button
+        messageInput.value = '';
+
+    });
+    //function for adding elements to the container as messages and playing the audio simultaneously
+    const append = (message, position) => {
+        const messageElement = document.createElement('div');
+        messageElement.innerText = message;
+        messageElement.classList.add('message');
+        messageElement.classList.add(position);
+        messageContainer.append(messageElement);
+        if (position == 'left') {
+
+            audio.play();
+        }
+    }
+    //Asking the user's name through a prompt on 1st time joining
+    const name = prompt("Enter your name to join");
+    //Sending that name to index.js socket server
+    socket.emit('new-user-joined', name);
+    //Receiving the name of the new user who joined and showing it to other users through append
+    socket.on('user-joined', name => {
+        append(`${name} joined the chat`, 'left')
+    });
+   //Receiving the name along with message sent by any user
+    socket.on('receive', data => {
+        append(`${data.name}:${data.message}`, 'left');
+    });
+    //Receiving the name of the user who left the chat system
+    socket.on('left', name => {
+        append(`${name} left the chat`, 'left');
+    });
+
+</script>
+
+</html>
