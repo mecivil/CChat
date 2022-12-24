@@ -6,6 +6,7 @@ const http = require('http');
 const server = http.createServer(app);
 const { Server } = require("socket.io");
 const io = new Server(server);
+const port=process.env.PORT || 3000;
 app.use('/images',express.static(__dirname+'/images'));
 app.get('/',(req,res)=>{
     res.sendFile(path.join(__dirname,'index.html'));
@@ -32,7 +33,7 @@ io.on("connection", (socket)=>{
     })
 });
 //Opening the http server and listeing to the port
-server.listen(3000,()=>{
+server.listen(port,()=>{
     console.log('listening to*;3000');
 });
 
