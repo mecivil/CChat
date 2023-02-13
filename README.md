@@ -1,5 +1,6 @@
 # CChat
 A scalable chat application using node.js and socket.io  
+Try it:https://chat-mecivil.onrender.com/
 Just enter your name and join.
 You will get notified when others join and start chatting.You'll also get notified when someone leaves the chat.
 That's it.  
